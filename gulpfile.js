@@ -68,16 +68,9 @@ gulp.task('banner', function(){
 
 // JS copy
 
-/**
-gulp.task('cp:js', function(){
- return gulp.src('**/*.js', {cwd: path.resolve(paths().source.js)})
-   .pipe(gulp.dest(path.resolve(paths().public.js)));
-// });
-
-
 gulp.task('cp:js',function(){
     return gulp.src('**/*.js', {cwd: path.resolve(paths().source.js)})
-        .pipe(gp_concat('concat.js'))
+        .pipe(concat('concat.js'))
         .pipe(gulp.dest(path.resolve(paths().public.js)))
         .pipe(rename('main.min.js'))
         .pipe(uglify())
@@ -165,6 +158,7 @@ gulp.task('connect', ['lab'], function () {
   gulp.watch(path.resolve(paths().source.scss, '**/*.scss'), ['cp:scss']);
 
   gulp.watch(path.resolve(paths().source.styleguide, '**/*.*'), ['cp:styleguide']);
+  gulp.watch(path.resolve(paths().source.js, '**/*.js'),['cp:js']);
 
   gulp.watch(
       [
