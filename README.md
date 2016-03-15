@@ -2,7 +2,7 @@
 
 Pattern lab framework without PHP executable files
 
-Modified source of pattern-lab framework to include scss files
+Modified source of pattern-lab framework to include scss files, gulp-concat and gulp-minify to concat and minify all js files from development to production.
 
 source : https://github.com/pattern-lab/patternlab-node
 
