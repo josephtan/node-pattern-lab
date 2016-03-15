@@ -2,6 +2,8 @@
 
 Pattern lab framework without PHP executable files
 
+Modified source of pattern-lab framework to include scss files
+
 source : https://github.com/pattern-lab/patternlab-node
 
 # Notes
