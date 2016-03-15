@@ -2,12 +2,18 @@
 
 var pkg = require('./package.json'),
     gulp = require('gulp'),
+    clean = require('gulp-clean'),
     path = require('path'),
     eol = require('os').EOL,
     del = require('del'),
     strip_banner = require('gulp-strip-banner'),
     header = require('gulp-header'),
     nodeunit = require('gulp-nodeunit'),
+    rename  = require('gulp-rename'),
+    sass  = require('gulp-sass'),
+    cssmin      = require('gulp-cssmin'),
+    concat = require('gulp-concat'),
+    uglify = require ('gulp-uglify'),
     browserSync = require('browser-sync').create();
 
 require('gulp-load')(gulp);
@@ -36,62 +42,87 @@ gulp.task('clean', function(cb){
 //build the banner
 gulp.task('banner', function(){
   return gulp.src([
-    './builder/patternlab.js',
-    './builder/object_factory.js',
-    './builder/lineage_hunter.js',
-    './builder/media_hunter.js',
-    './builder/patternlab_grunt.js',
-    './builder/patternlab_gulp.js',
-    './builder/parameter_hunter.js',
-    './builder/pattern_exporter.js',
-    './builder/pattern_assembler.js',
-    './builder/pseudopattern_hunter.js',
-    './builder/list_item_hunter.js',
-    './builder/style_modifier_hunter.js'
-  ])
-    .pipe(strip_banner())
-    .pipe(header( banner, {
-      pkg : pkg,
-      today : new Date().getFullYear() }
-    ))
-    .pipe(gulp.dest('./builder'));
+        './builder/patternlab.js',
+        './builder/object_factory.js',
+        './builder/lineage_hunter.js',
+        './builder/media_hunter.js',
+        './builder/patternlab_grunt.js',
+        './builder/patternlab_gulp.js',
+        './builder/parameter_hunter.js',
+        './builder/pattern_exporter.js',
+        './builder/pattern_assembler.js',
+        './builder/pseudopattern_hunter.js',
+        './builder/list_item_hunter.js',
+        './builder/style_modifier_hunter.js'
+      ])
+      .pipe(strip_banner())
+      .pipe(header( banner, {
+        pkg : pkg,
+        today : new Date().getFullYear() }
+      ))
+      .pipe(gulp.dest('./builder'));
 });
 
 
 // COPY TASKS
 
 // JS copy
+
+/**
 gulp.task('cp:js', function(){
-  return gulp.src('**/*.js', {cwd: path.resolve(paths().source.js)} )
-    .pipe(gulp.dest(path.resolve(paths().public.js)));
+ return gulp.src('**/*.js', {cwd: path.resolve(paths().source.js)})
+   .pipe(gulp.dest(path.resolve(paths().public.js)));
+// });
+
+
+gulp.task('cp:js',function(){
+    return gulp.src('**/*.js', {cwd: path.resolve(paths().source.js)})
+        .pipe(gp_concat('concat.js'))
+        .pipe(gulp.dest(path.resolve(paths().public.js)))
+        .pipe(rename('main.min.js'))
+        .pipe(uglify())
+        .pipe(gulp.dest(path.resolve(paths().public.js)));
 });
+
 
 // Images copy
 gulp.task('cp:img', function(){
   return gulp.src(
-    [ '**/*.gif', '**/*.png', '**/*.jpg', '**/*.jpeg'  ],
-    {cwd: path.resolve(paths().source.images)} )
-    .pipe(gulp.dest(path.resolve(paths().public.images)));
+      [ '**/*.gif', '**/*.png', '**/*.jpg', '**/*.jpeg'  ],
+      {cwd: path.resolve(paths().source.images)} )
+      .pipe(gulp.dest(path.resolve(paths().public.images)));
 });
 
 // Fonts copy
 gulp.task('cp:font', function(){
   return gulp.src('*', {cwd: path.resolve(paths().source.fonts)})
-    .pipe(gulp.dest(path.resolve(paths().public.fonts)));
+      .pipe(gulp.dest(path.resolve(paths().public.fonts)));
 });
 
 // Data copy
 gulp.task('cp:data', function(){
   return gulp.src('annotations.js', {cwd: path.resolve(paths().source.data)})
-    .pipe(gulp.dest(path.resolve(paths().public.data)));
+      .pipe(gulp.dest(path.resolve(paths().public.data)));
 });
 
 // CSS Copy
-gulp.task('cp:css', function(){
-  return gulp.src(path.resolve(paths().source.css, 'style.css'))
-    .pipe(gulp.dest(path.resolve(paths().public.css)))
-    .pipe(browserSync.stream());
+/*gulp.task('cp:scss', function(){
+  return gulp.src(path.resolve(paths().source.scss, 'style.css'))
+      .pipe(gulp.dest(path.resolve(paths().public.css)))
+      .pipe(browserSync.stream());
+});*/
+
+/**
+ ****** SCSS copy ******
+ **/
+
+gulp.task('cp:scss', function () {
+  return gulp.src(path.resolve(paths().source.scss,'style.scss'))
+      .pipe(sass())
+      .pipe(gulp.dest(path.resolve(paths().public.css)))
+      .pipe(browserSync.stream());
 });
+
 
 // Styleguide Copy
 gulp.task('cp:styleguide', function(){
@@ -131,21 +162,21 @@ gulp.task('connect', ['lab'], function () {
       ]
     }
   });
-  gulp.watch(path.resolve(paths().source.css, '**/*.css'), ['cp:css']);
+  gulp.watch(path.resolve(paths().source.scss, '**/*.scss'), ['cp:scss']);
 
   gulp.watch(path.resolve(paths().source.styleguide, '**/*.*'), ['cp:styleguide']);
 
   gulp.watch(
-    [
-      path.resolve(paths().source.patterns, '**/*.mustache'),
-      path.resolve(paths().source.patterns, '**/*.json'),
-      path.resolve(paths().source.data, '*.json'),
-      path.resolve(paths().source.fonts + '/*'),
-      path.resolve(paths().source.images + '/*'),
-      path.resolve(paths().source.data + '*.json')
-    ],
-    ['lab-pipe'],
-    function () { browserSync.reload(); }
+      [
+        path.resolve(paths().source.patterns, '**/*.mustache'),
+        path.resolve(paths().source.patterns, '**/*.json'),
+        path.resolve(paths().source.data, '*.json'),
+        path.resolve(paths().source.fonts + '/*'),
+        path.resolve(paths().source.images + '/*'),
+        path.resolve(paths().source.data + '*.json')
+      ],
+      ['lab-pipe'],
+      function () { browserSync.reload(); }
   );
 
 });
@@ -153,7 +184,7 @@ gulp.task('connect', ['lab'], function () {
 //unit test
 gulp.task('nodeunit', function(){
   return gulp.src('./test/**/*_tests.js')
-    .pipe(nodeunit());
+      .pipe(nodeunit());
 });
 
 
@@ -164,7 +195,7 @@ gulp.task('lab-pipe', ['lab'], function(cb){
 
 gulp.task('default', ['lab']);
 
-gulp.task('assets', ['cp:js', 'cp:img', 'cp:font', 'cp:data', 'cp:css', 'cp:styleguide' ]);
+gulp.task('assets', ['cp:js', 'cp:img', 'cp:font', 'cp:data', 'cp:scss', 'cp:styleguide' ]);
 gulp.task('prelab', ['clean', 'assets']);
 gulp.task('lab', ['prelab', 'patternlab'], function(cb){cb();});
 gulp.task('patterns', ['patternlab:only_patterns']);

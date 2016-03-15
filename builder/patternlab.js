@@ -24,7 +24,7 @@ var patternlab_engine = function (config) {
   he = require('html-entities').AllHtmlEntities,
   patternlab = {};
 
-  patternlab.package = fs.readJSONSync('./package.json');
+  patternlab.package = fs.readJSONSync('./package.grunt.json');
   patternlab.config = config || fs.readJSONSync(path.resolve(__dirname, '../config.json'));
 
   var paths = patternlab.config.paths;
@@ -175,7 +175,7 @@ var patternlab_engine = function (config) {
     });
 
     //find mediaQueries
-    media_hunter.find_media_queries('./source/css', patternlab);
+    media_hunter.find_media_queries('./source/scss', patternlab);
 
     // check if patterns are excluded, if not add them to styleguidePatterns
     if (styleGuideExcludes && styleGuideExcludes.length) {
